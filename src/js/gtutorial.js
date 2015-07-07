@@ -5,6 +5,7 @@ var cursors = game.input.keyboard.createCursorKeys();
 var space;
 var stars;
 var star;
+var limitTime;
 
 function preload() {
 	game.load.image('sky', 'assets/sky.png');
@@ -15,6 +16,7 @@ function preload() {
 }
 
 function create() {
+	limitTime = 0;
 	//set Space key
 	space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -121,14 +123,18 @@ function update() {
 
 	//Pushed spacekey create star
 	if(space.isDown){
-		star = stars.getFirstExists(false);
-		if(star){
-			if(player.animations.name === 'left'){
-				star.reset(player.body.x + 32 , player.body.y);
-				star.body.velocity.y = player.body.y;
-			}else if(player.animations.name === 'right'){
-				star.reset(player.body.x - 32, player.body.y);
-				star.body.velocity.y = player.body.y;
+		if(game.time.now > limitTime && stars.total < 5){
+			console.log(stars);
+			star = stars.getFirstExists(false);
+			if(star){
+				if(player.animations.name === 'left'){
+					star.reset(player.body.x + 32 , player.body.y);
+					star.body.velocity.y = player.body.y;
+				}else if(player.animations.name === 'right'){
+					star.reset(player.body.x - 32, player.body.y);
+					star.body.velocity.y = player.body.y;
+				}
+				limitTime = game.time.now + 300;
 			}
 		}
 	}
