@@ -98,9 +98,15 @@ function update() {
 		}else{
 			//そのまま
 			player.animations.stop();
-			player.frame = 4;
+
+			if(player.animations.name === 'left'){
+				player.frame = 0;
+			}else{
+				player.frame = 5;
+			}
+
 		}
-	}else if(player.body.x > 800 -32 || player.body.x == 800-32 && player.body.x > 20){
+	}else if(player.body.x > 800 -32 || player.body.x === 800-32 && player.body.x > 20){
 		player.body.x = 800 -33;
 		player.animations.stop();
 	}else if(player.body.x < 5 || player.body.x == 5){
@@ -113,12 +119,17 @@ function update() {
 		player.body.velocity.y = -350;
 	}
 
-	//spacekey pushing create star
+	//Pushed spacekey create star
 	if(space.isDown){
 		star = stars.getFirstExists(false);
 		if(star){
-			star.reset(player.body.x -30 , player.body.y);
-			star.body.velocity.y = player.body.y;
+			if(player.animations.name === 'left'){
+				star.reset(player.body.x + 32 , player.body.y);
+				star.body.velocity.y = player.body.y;
+			}else if(player.animations.name === 'right'){
+				star.reset(player.body.x - 32, player.body.y);
+				star.body.velocity.y = player.body.y;
+			}
 		}
 	}
 }
