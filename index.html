@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head> 
+	<meta charset="UTF-8">
+	<title>game controller</title>
+	<script src="./src/js/peer.min.js"></script>
+</head>
+
+<body data-feedly-mini="yes">
+	<h1> Controller</h1>
+	<input type='text' id='command'>
+	<button onclick="sendClick()">送信</button>
+
+	<script type="text/javascript">
+		var peer = new Peer('controller', { key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
+		var command;
+		var conn = peer.connect('player1');
+
+		function sendClick(){
+			command = document.getElementById('command').value;
+			console.log('command: ', command);
+		
+			if(typeof command !== 'undefined'){
+				console.log('send phase');
+				conn.send({
+					type: 'command',
+					command: command
+				});
+			}
+		}
+	</script>
+
+</body></html>
+

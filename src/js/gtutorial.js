@@ -1,13 +1,71 @@
+var peer = new Peer('player1', { key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+//WebRTC
+var conn;
+
+//指定IDでWebRTC
+peer.on('open', function(id){
+	console.log('my id', id);
+});
+
+//受信
+peer.on('connection', function receiver(recv){
+	"use strict";
+
+	console.log('revceved');
+
+	var _dataPool = new DataPool();
+
+	recv.on('data', function(data){
+		console.log('data:', data);
+		//command -> DataPool
+		if(data.type === 'command'){
+			console.log('check OK');
+			_dataPool.setCom(data.command);
+			console.log(_dataPool.getCom());
+		}
+
+	});
+});
+
+
+var DataPool = (function(){
+	var c;
+
+	function DataPool(){
+		this._command;
+	};
+
+
+
+	//共有でアクセスされたい
+	DataPool.prototype.getCom = function(){
+		return this._command;
+	};
+
+	DataPool.prototype.setCom = function(c){
+		this._command = c;
+	};
+
+	return DataPool;
+})();
+
+
+//Game
 var player;
-var cursors = game.input.keyboard.createCursorKeys();
+var cursors;
 var space;
 var stars;
 var star;
 var limitTime;
+var platforms;
+var enemyCommand;
+var PlayerCommand;
 
 function preload() {
+	"use strict";
+
 	game.load.image('sky', 'assets/sky.png');
 	game.load.image('ground', 'assets/platform.png');
 	game.load.image('star', 'assets/star.png');
@@ -16,9 +74,18 @@ function preload() {
 }
 
 function create() {
+	"use strict";
+
+	//set limit time
 	limitTime = 0;
+	//set keyboard
+	cursors = game.input.keyboard.createCursorKeys();
 	//set Space key
 	space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+
+	//set Data(command) pool
+	enemyCommand = new DataPool();
 
 	//物理エンジンON
 	game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -77,23 +144,29 @@ function create() {
 }
 
 function update() {
+	"use strict";
+
 	//playerとplatformの衝突判定
 	game.physics.arcade.collide(player, platforms);
 	game.physics.arcade.collide(stars, platforms);
 	game.physics.arcade.overlap(player, stars, bump, null, this);
 
 	//playerの移動速度リセット
-	if(player.body.touching.down)
+	if(player.body.touching.down){
 		player.body.velocity.x = 0;
+	}
 
 	cursors = game.input.keyboard.createCursorKeys();
 
 	if(player.body.x < 800 -32 && player.body.x > 5){
-		if(cursors.left.isDown){
+		//if(cursors.left.isDown){
+		if(enemyCommand.getCom() == 'L'){
+
 			//左
 			player.body.velocity.x = -150;
 			player.animations.play('left');
-		}else if(cursors.right.isDown){
+		// }else if(cursors.right.isDown){
+		}else if (enemyCommand.getCom() == 'R'){
 			//右
 			player.body.velocity.x = 150;
 			player.animations.play('right');
@@ -117,14 +190,15 @@ function update() {
 	}
 
 	//上矢印キー && プレイヤー地面 is Jump
-	if(cursors.up.isDown && player.body.touching.down){
+	// if(cursors.up.isDown && player.body.touching.down){
+	if(enemyCommand.getCom() == 'U' && player.body.touching.down){
 		player.body.velocity.y = -350;
 	}
 
 	//Pushed spacekey create star
-	if(space.isDown){
+	// if(space.isDown){
+	if(enemyCommand.getCom() == 'S'){
 		if(game.time.now > limitTime && stars.total < 5){
-			console.log(stars);
 			star = stars.getFirstExists(false);
 			if(star){
 				if(player.animations.name === 'left'){
@@ -138,8 +212,11 @@ function update() {
 			}
 		}
 	}
+
 }
 
 function bump(player, star){
+	"use strict";
+
 	star.kill();
 }
