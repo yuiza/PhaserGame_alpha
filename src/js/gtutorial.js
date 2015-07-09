@@ -24,6 +24,8 @@ peer.on('connection', function receiver(recv){
 			console.log('check OK');
 			_dataPool.setCom(data.command);
 			console.log(_dataPool.getCom());
+			//DataPool.setCom(data.command);
+			//console.log(DataPool.getCom());
 		}
 
 	});
@@ -31,21 +33,23 @@ peer.on('connection', function receiver(recv){
 
 
 var DataPool = (function(){
-	var c;
+
+	var _command;
 
 	function DataPool(){
-		this._command;
+		//var _command;
+		//this._command;
 	};
 
 
 
 	//共有でアクセスされたい
 	DataPool.prototype.getCom = function(){
-		return this._command;
+		return _command;
 	};
 
 	DataPool.prototype.setCom = function(c){
-		this._command = c;
+		_command = c;
 	};
 
 	return DataPool;
@@ -159,6 +163,8 @@ function update() {
 	cursors = game.input.keyboard.createCursorKeys();
 
 	if(player.body.x < 800 -32 && player.body.x > 5){
+
+
 		//if(cursors.left.isDown){
 		if(enemyCommand.getCom() == 'L'){
 
