@@ -4,6 +4,8 @@
 	<meta charset="UTF-8">
 	<title>game controller</title>
 	<script src="./src/js/peer.min.js"></script>
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/jqueryui/jquery-ui.min.js"></script>
 </head>
 
 <body data-feedly-mini="yes">
@@ -12,22 +14,53 @@
 	<button onclick="sendClick()">送信</button>
 
 	<script type="text/javascript">
-		var peer = new Peer('controller', { key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
+		var peer = new Peer({ key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
 		var command;
-		var conn = peer.connect('player1');
+		var conn = peer.connect('player2');
 
-		function sendClick(){
-			command = document.getElementById('command').value;
-			console.log('command: ', command);
-		
-			if(typeof command !== 'undefined'){
-				console.log('send phase');
-				conn.send({
-					type: 'command',
-					command: command
-				});
+
+		$(document).on("keydown", function(event){
+			console.log(event.keyCode);
+			switch(event.keyCode){
+				case $.ui.keyCode.LEFT:
+					console.log('LEFT');
+					conn.send({
+						type: 'command',
+						command: 'L'
+					});
+					break;
+				case $.ui.keyCode.RIGHT:
+					console.log('RIGHT');
+					conn.send({
+						type: 'command',
+						command: 'R'
+					});
+					break;
+				case $.ui.keyCode.UP:
+					console.log('UP');
+					conn.send({
+						type: 'command',
+						command: 'U'
+					});
+					break;
+				case $.ui.keyCode.DOWN:
+					console.log('DOWN');
+					conn.send({
+						type: 'command',
+						command: 'D'
+					});
+					break;
+				case $.ui.keyCode.SPACE:
+					console.log('SPACE');
+					conn.send({
+						type: 'command',
+						command: 'S'
+					});
+					break;
 			}
-		}
+
+		});
+
 	</script>
 
 </body></html>

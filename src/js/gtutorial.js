@@ -1,4 +1,4 @@
-var peer = new Peer('player1', { key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
+var peer = new Peer('player2', { key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 //WebRTC
@@ -32,18 +32,13 @@ peer.on('connection', function receiver(recv){
 });
 
 
+//共有アクセスクラス
 var DataPool = (function(){
 
 	var _command;
 
-	function DataPool(){
-		//var _command;
-		//this._command;
-	};
+	function DataPool(){};
 
-
-
-	//共有でアクセスされたい
 	DataPool.prototype.getCom = function(){
 		return _command;
 	};
