@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head> 
+	<meta charset="UTF-8">
+	<title>game controller</title>
+	<script src="./src/js/peer.min.js"></script>
+	<script src='./src/js/phaser.min.js'></script>
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/jqueryui/jquery-ui.min.js"></script>
+</head>
+
+<body data-feedly-mini="yes">
+	<h1> Controller</h1>
+	<script type="text/javascript">
+		var peer = new Peer({ key: 'gj6od1nfegtoi529', debug: 3, config: { 'iceServers': [ {url: 'stun:stun.l.google.com:19302'} ] } });
+		var game = new Phaser.Game(400, 300, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+		//Game
+		var player;
+		var cursors;
+		var enemyCommand;
+
+		var command;
+		var conn = peer.connect('player2');
+
+		//受信
+peer.on('connection', function receiver(recv){
+	"use strict";
+
+	console.log('revceved');
+
+	var _dataPool = new DataPool();
+
+	recv.on('data', function(data){
+		console.log('data:', data);
+		//command -> DataPool
+		if(data.type === 'command'){
+			console.log('check OK');
+			_dataPool.setCom(data.command);
+			console.log(_dataPool.getCom());
+		}
+	});
+});
+
+//共有アクセスクラス
+var DataPool = (function(){
+
+	var _command;
+
+	function DataPool(){};
+
+	DataPool.prototype.getCom = function(){
+		return _command;
+	};
+
+	DataPool.prototype.setCom = function(c){
+		_command = c;
+	};
+
+	return DataPool;
+})();
+    
+function preload() {
+	"use strict";
+	//game.load.image('sky', 'src/assets/sky.png');
+}
+
+function create() {
+	"use strict";
+
+	//set limit time
+	limitTime = 0;
+	//set keyboard
+	cursors = game.input.keyboard.createCursorKeys();
+	//set Space key
+	space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+	//set Data(command) pool
+	enemyCommand = new DataPool();
+
+	//game.add.sprite(0,0,'sky');
+}
+
+function update() {
+	"use strict";
+
+	cursors = game.input.keyboard.createCursorKeys();
+
+		if(cursors.left.isDown){
+			console.log('LEFT');
+			conn.send({
+				type: 'command',
+				command: 'L'
+			});
+		}else if(cursors.right.isDown){
+			console.log('RIGHT');
+			conn.send({
+				type: 'command',
+				command: 'R'
+			});
+		}else{
+			//そのまま
+			console.log('STOP');
+			conn.send({
+				type: 'command',
+				command: 'NULL'
+			});
+		}
+
+	//上矢印キー && プレイヤー地面 is Jump
+	if(cursors.up.isDown){
+		console.log('U');
+		conn.send({
+			type: 'command',
+			command: 'U'
+		});
+	}
+
+	//Pushed spacekey create star
+	if(space.isDown){
+		console.log('DOWN');
+		conn.send({
+			type: 'command',
+			command: 'D'
+		});
+	}
+}
+
+</script>
+</body>
+</html>
